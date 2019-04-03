@@ -69,7 +69,7 @@ def get_connection(db, user=env.user, host=env.host, password=env.password):
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
 
-dbc = env.get_connection('telco_churn')
+dbc = get_connection('telco_churn')
 telco_full = pd.read_sql('SELECT * FROM customers c JOIN contract_types ct                            ON c.contract_type_id = ct.contract_type_id JOIN internet_service_types it                            ON c.internet_service_type_id = it.internet_service_type_id JOIN payment_types pt                            ON c.payment_type_id = pt.payment_type_id', dbc)
 telco_full.head()
 

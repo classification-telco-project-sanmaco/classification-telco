@@ -46,13 +46,15 @@ def prep_telco_data(df):
 
 
 
-#This is the main Telco DB prep function
-# Converts total_charges to a float from a string
-# Gives tenure as a year
-# Gives a family plan which by our means is a custm=omer who has a dependent, partner, and multiple lines
-# Gives household, phone_id, streaming_services, and online_security fields. Which are a combination of other fields of like groups
-# Encodes all object fields
-# Reindexes the dataframe to be easier to read. Puts important fields to the front and like fields next to each other
+# This is the main Telco DB prep function
+    # Drops erroneous fields
+    # Converts total_charges to a float from a string
+    # Gives tenure as a year
+    # Gives a family plan which by our means is a custm=omer who has a dependent, partner, and multiple lines
+    # Gives household, phone_id, streaming_services, and online_security fields. Which are a combination of other fields of like groups
+    # Encodes all object fields
+    # Reindexes the dataframe to be easier to read. Puts important fields to the front and like fields next to each other
+    # Drops null values
 
 def prep_telco(df_telco):
     df = df_telco.copy()
@@ -176,6 +178,8 @@ def prep_telco(df_telco):
     'online_backup_encode','online_security_encode', 'multiple_lines_encode','phone_service_encode', 'dependents_encode', 'gender_encode','partner_encode'
     ], axis='columns')
 
+    df = df.dropna()
+
     return df
 
 
@@ -260,3 +264,29 @@ def df_print_r_and_p_values(X, y):
         print(f"{col}:")
         print(f"\tPearson's R is {r:.2f} ")
         print(f"\twith a significance p-value of {p: .3}\n")
+
+def peekatdata(df):
+    print('First five rows of the dataframe:')
+    head_df = df.head()
+    print(head_df)
+    print('\n')
+    print('Last five rows of the dataframe:')
+    tail_df = df.tail()
+    print(tail_df)
+    print('\n')
+    print('Shape of the dataframe:')
+    shape_tuple = df.shape
+    print(shape_tuple)
+    print('\n')
+    print('Describe dataframe:')
+    describe_df = df.describe()
+    print(describe_df)
+    print('\n')
+    print('Data types of each column:')
+    print(df.dtypes)
+    print('\n')
+    print('Non-nulls in each column:')
+    print(df.info())
+    print('\n')
+    print('Memory usage:')
+    print(df.memory_usage)

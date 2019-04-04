@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import math as m
+import io
+import scipy.stats as stats
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
@@ -50,9 +52,12 @@ def prep_telco_data(df):
 # Gives a family plan which by our means is a custm=omer who has a dependent, partner, and multiple lines
 # Gives household, phone_id, streaming_services, and online_security fields. Which are a combination of other fields of like groups
 # Encodes all object fields
+# Reindexes the dataframe to be easier to read. Puts important fields to the front and like fields next to each other
 
 def prep_telco(df_telco):
     df = df_telco.copy()
+
+    df.drop(['payment_type_id.1', 'contract_type_id.1', 'internet_service_type_id.1'], inplace=True, axis=1)
 
     df.total_charges = pd.to_numeric(df.total_charges, downcast='float', errors='coerce')
 
@@ -162,6 +167,15 @@ def prep_telco(df_telco):
     encoder_partner.fit(df.partner)
     df = df.assign(partner_encode=encoder_partner.transform(df.partner))
 
+    df = df.reindex([
+    'customer_id', 'churn','tenure', 'tenure_year', 'in_tenure_year', 'monthly_charges','total_charges', 
+    'payment_type','payment_type_id',   'contract_type', 'contract_type_id','internet_service_type', 'internet_service_type_id','paperless_billing',
+    'gender', 'senior_citizen', 'partner', 'dependents','phone_service', 'multiple_lines', 'streaming_tv', 'streaming_movies',  'online_security', 'online_backup', 
+    'device_protection', 'tech_support','family_plan','household', 'phone_id', 'streaming_services', 'online_security_backup','payment_type_encode', 'internet_service_type_encode',
+    'contract_type_encode', 'churn_encode', 'paperless_billing_encode','streaming_movies_encode', 'streaming_tv_encode', 'tech_support_encode','device_protection_encode', 
+    'online_backup_encode','online_security_encode', 'multiple_lines_encode','phone_service_encode', 'dependents_encode', 'gender_encode','partner_encode'
+    ], axis='columns')
+
     return df
 
 
@@ -191,3 +205,58 @@ def min_max_scale_telco(df_train, df_test):
     # test_df[['monthly_charges', 'total_charges']] = scaler.transform(test_df[['monthly_charges', 'total_charges']])
 
     return df_train_scaled, df_test_scaled
+
+
+###### Following is a series of functions for viewing the prepped data
+
+def df_print_missing_vals(df):
+    # any missing values?
+    # prints the number of missing values 
+    # only for columns with missing values
+    print("\nMissing Values:\n")
+    null_counts = df.isnull().sum()
+    if len(null_counts[null_counts > 0]) == 0:
+        print("No missing values")
+    else:
+        print(null_counts[null_counts > 0])
+
+
+def df_percent_missing_vals(df):
+    return (df.isnull().sum() / df.shape[0]) * 100
+
+def df_metadata(df) -> tuple:
+    """
+    return a tuple of (size, shape, info)
+    """
+    buffer = io.StringIO()
+    df.info(buf=buffer)
+    return (df.size, df.shape, buffer.getvalue())
+
+def df_print_metadata(df) -> None:
+    """
+    print metadata of dataframe
+    """
+    size, shape, info = df_metadata(df)
+    print("DATAFRAME METADATA")
+    print(f"Size: {size}")
+    print()
+    print(f"Shape: {shape[0]} x {shape[1]}")
+    print()
+    print("Info:")
+    print(info, end="")
+    df_print_missing_vals(df)
+    print("Percentages of Missing Values are:")
+    print(df_percent_missing_vals(df))
+
+
+##### Following are functions for viewing bassic statistical data
+
+def df_print_r_and_p_values(X, y):
+    r_and_p_values = {col: stats.pearsonr(X[col], y) for col in X.columns}
+    print("PEARSON'S R")
+    for k, v in r_and_p_values.items():
+        col = k
+        r, p = v
+        print(f"{col}:")
+        print(f"\tPearson's R is {r:.2f} ")
+        print(f"\twith a significance p-value of {p: .3}\n")

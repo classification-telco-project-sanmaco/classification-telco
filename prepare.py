@@ -105,6 +105,12 @@ def prep_telco(df_telco):
     choices_4 = [0,1,2,3,4]
     df['online_security_backup'] = np.select(conditions_4, choices_4)
 
+    conditions_5 = [
+    (df['contract_type'] == 'Month-to-month'),
+    (df['contract_type'] != 'Month-to-Month')]
+    choices_5 = [1,0]
+    df['monthly'] = np.select(conditions_5, choices_5)
+
     encoder_payment_type = LabelEncoder()
     encoder_payment_type.fit(df.payment_type)
     df = df.assign(payment_type_encode=encoder_payment_type.transform(df.payment_type))
@@ -173,7 +179,7 @@ def prep_telco(df_telco):
     'customer_id', 'churn','tenure', 'tenure_year', 'in_tenure_year', 'monthly_charges','total_charges', 
     'payment_type','payment_type_id',   'contract_type', 'contract_type_id','internet_service_type', 'internet_service_type_id','paperless_billing',
     'gender', 'senior_citizen', 'partner', 'dependents','phone_service', 'multiple_lines', 'streaming_tv', 'streaming_movies',  'online_security', 'online_backup', 
-    'device_protection', 'tech_support','family_plan','household', 'phone_id', 'streaming_services', 'online_security_backup','payment_type_encode', 'internet_service_type_encode',
+    'device_protection', 'tech_support','family_plan','household', 'phone_id', 'streaming_services', 'online_security_backup', 'monthly' ,'payment_type_encode', 'internet_service_type_encode',
     'contract_type_encode', 'churn_encode', 'paperless_billing_encode','streaming_movies_encode', 'streaming_tv_encode', 'tech_support_encode','device_protection_encode', 
     'online_backup_encode','online_security_encode', 'multiple_lines_encode','phone_service_encode', 'dependents_encode', 'gender_encode','partner_encode'
     ], axis='columns')

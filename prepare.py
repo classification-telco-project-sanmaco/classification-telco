@@ -37,6 +37,8 @@ col = ['gender',
 def prep_telco(df_telco):
     df = df_telco.copy()
 
+    df.total_charges = pd.to_numeric(df.total_charges, downcast='float', errors='coerce')
+
     df['tenure_year']= (df['tenure']/12).round(decimals=2)
     df['in_tenure_year']= np.ceil(df['tenure']/12)
 
@@ -143,13 +145,10 @@ def prep_telco(df_telco):
 
     return df
 
-
-
-
 ####
 def split_telco(df_telco):
     return train_test_split(df_telco, train_size=0.7, 
-    random_state=123, stratify=df_telco[["survived"]])
+    random_state=123, stratify=df_telco[["churn"]])
 
 
 def min_max_scale_telco(df_train, df_test):
@@ -157,9 +156,9 @@ def min_max_scale_telco(df_train, df_test):
     df_test_scaled = df_test.copy()
     
     scaler = MinMaxScaler()
-    scaler.fit(df_train[['age', 'fare']])
+    scaler.fit(df_train[['monthly_charges', 'total_charges']])
     
-    df_train_scaled[["age", "fare"]] = scaler.fit_transform(df_train[["age", "fare"]])
-    df_test_scaled[["age", "fare"]] = scaler.fit_transform(df_test[["age", "fare"]])
+    df_train_scaled[['monthly_charges', 'total_charges']] = scaler.fit_transform(df_train[['monthly_charges', 'total_charges']])
+    df_test_scaled[['monthly_charges', 'total_charges']] = scaler.fit_transform(df_test[['monthly_charges', 'total_charges']])
     
     return df_train_scaled, df_test_scaled
